@@ -1,20 +1,25 @@
 {
   "schemaVersion": 1,
-  "id": "<mod_id>",
+  "id": "kianaui",
   "version": "${version}",
-  "name": "<mod_name>",
-  "description": "<mod_description>",
+  "name": "KianaUI",
+  "description": "",
   "authors": [
-    "<author>"
+    "Kiana"
   ],
   "license": "MIT",
-  "icon": "assets/<mod_id>/icon.png",
-  "environment": "*",
+  "icon": "assets/kianaui/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.chloedev.kianaui.KianaUIClient"
+    ]
+  },
   "mixins": [
-    "<mod_id>.mixins.json"
+    "kianaui.mixins.json"
   ],
   "depends": {
     "fabric-api": "*"
   },
-  "accessWidener": "<mod_id>.accesswidener"
+  "accessWidener": "kianaui.accesswidener"
 }
