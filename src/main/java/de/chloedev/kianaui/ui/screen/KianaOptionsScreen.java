@@ -1,6 +1,6 @@
 package de.chloedev.kianaui.ui.screen;
 
-import de.chloedev.kianalibfabric.ui.widget.OptionListWidget;
+import de.chloedev.kianalibfabric.ui.widget.option.OptionListWidget;
 import de.chloedev.kianaui.KianaUIClient;
 import de.chloedev.kianaui.option.Options;
 import de.chloedev.kianaui.ui.widget.Tab;
@@ -28,7 +28,11 @@ public class KianaOptionsScreen extends Screen {
 
     @Override
     protected void init() {
-        this.navigation = new TabScreenWidget(this.width, this.tabManager, new GeneralTab(), new DisplayTab());
+        this.navigation = new TabScreenWidget(this.width, this.tabManager,
+                new GeneralTab(),
+                new DisplayTab(),
+                new GraphicsTab()
+        );
         this.addDrawableChild(this.navigation);
         this.grid = new GridWidget().setColumnSpacing(10);
         this.navigation.selectTab(0, false);
@@ -59,6 +63,7 @@ public class KianaOptionsScreen extends Screen {
         this.navigation.selectTab(i, false);
     }
 
+
     class GeneralTab extends Tab {
         public GeneralTab() {
             super(Text.literal("General"));
@@ -83,6 +88,20 @@ public class KianaOptionsScreen extends Screen {
             GridWidget.Adder adder = this.grid.createAdder(1);
             OptionListWidget list = new OptionListWidget(width / 4, 32, width / 2, height - 44, 24);
             options.displayOptions.forEach(list::addSingleOptionEntry);
+            adder.add(list);
+        }
+    }
+
+    class GraphicsTab extends Tab {
+        public GraphicsTab() {
+            super(Text.literal("Graphics"));
+        }
+
+        @Override
+        public void init() {
+            GridWidget.Adder adder = this.grid.createAdder(1);
+            OptionListWidget list = new OptionListWidget(width / 4, 32, width / 2, height - 44, 24);
+            options.graphicOptions.forEach(list::addSingleOptionEntry);
             adder.add(list);
         }
     }

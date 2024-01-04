@@ -15,9 +15,9 @@ public class DevUtil {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 
-    public static void debug(String msg) {
+    public static void debug(Object msg) {
         if (isDevEnvironment()) {
-            DEV_LOGGER.info(msg);
+            DEV_LOGGER.info(msg.toString());
         }
     }
 }

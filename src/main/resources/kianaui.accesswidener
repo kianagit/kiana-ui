@@ -1,16 +1,13 @@
 accessWidener v2 named
 
-accessible	class	net/minecraft/client/option/SimpleOption$Callbacks
-extendable	class	net/minecraft/client/option/SimpleOption
-accessible	field	net/minecraft/client/option/SimpleOption	callbacks	Lnet/minecraft/client/option/SimpleOption$Callbacks;
-mutable	field	net/minecraft/client/option/SimpleOption	callbacks	Lnet/minecraft/client/option/SimpleOption$Callbacks;
-accessible	field	net/minecraft/client/option/SimpleOption	codec	Lcom/mojang/serialization/Codec;
-mutable	field	net/minecraft/client/option/SimpleOption	codec	Lcom/mojang/serialization/Codec;
-accessible field net/minecraft/client/option/SimpleOption changeCallback Ljava/util/function/Consumer;
-accessible class net/minecraft/client/option/SimpleOption$SliderCallbacks
+extendable class net/minecraft/client/option/SimpleOption
+accessible class net/minecraft/client/option/SimpleOption$Callbacks
+accessible class net/minecraft/client/option/SimpleOption$OptionSliderWidgetImpl
+accessible field net/minecraft/client/option/SimpleOption text Lnet/minecraft/text/Text;
+mutable field net/minecraft/client/option/SimpleOption text Lnet/minecraft/text/Text;
 accessible field net/minecraft/client/option/SimpleOption textGetter Ljava/util/function/Function;
-extendable method net/minecraft/client/gui/widget/TabNavigationWidget <init> (ILnet/minecraft/client/gui/tab/TabManager;Ljava/lang/Iterable;)V
-accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabButtons Lcom/google/common/collect/ImmutableList;
+mutable field net/minecraft/client/option/SimpleOption textGetter Ljava/util/function/Function;
+
 accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabs Lcom/google/common/collect/ImmutableList;
-extendable method net/minecraft/client/gui/widget/SliderWidget setValueFromMouse (D)V
-accessible method net/minecraft/client/gui/widget/SliderWidget setValue (D)V
+accessible method net/minecraft/client/gui/widget/TabNavigationWidget <init> (ILnet/minecraft/client/gui/tab/TabManager;Ljava/lang/Iterable;)V
+accessible field net/minecraft/client/gui/widget/TabNavigationWidget tabButtons Lcom/google/common/collect/ImmutableList;

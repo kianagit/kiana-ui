@@ -1,14 +1,15 @@
 package de.chloedev.kianaui.option;
 
-import de.chloedev.kianalibfabric.util.ActionUtil;
-import de.chloedev.kianaui.ui.option.slider.IntegerSliderOption;
+import de.chloedev.kianalibfabric.io.FileConfiguration;
+import de.chloedev.kianaui.KianaUIClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.util.Monitor;
+import net.minecraft.client.render.ChunkBuilderMode;
 import net.minecraft.client.util.VideoMode;
-import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,32 +17,54 @@ import java.util.Optional;
 
 public class Options {
 
+    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final GameOptions gameOptions = client.options;
+    FileConfiguration config = KianaUIClient.getInstance().getFileConfig();
 
-    public final List<SimpleOption<?>>
-            generalOptions = new ArrayList<>(),
-            displayOptions = new ArrayList<>(),
-            graphicOptions = new ArrayList<>(),
-            otherOptions = new ArrayList<>();
+    public final List<SimpleOption<?>> generalOptions = new ArrayList<>(), displayOptions = new ArrayList<>(), graphicOptions = new ArrayList<>(), otherOptions = new ArrayList<>();
 
-    public Options() {
-        this.createOptions();
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public final SimpleOption<Integer> fovOption = register(generalOptions, gameOptions.getFov());
+    public final SimpleOption<Boolean> fullscreenOption = register(displayOptions, gameOptions.getFullscreen());
+    public final SimpleOption<Integer> resolutionOption = register(displayOptions, new SimpleOption<>("options.fullscreen.resolution", SimpleOption.emptyTooltip(), (prefix, value) -> {
+        if (client.getWindow().getMonitor() == null) return Text.translatable("options.fullscreen.unavailable");
+        if (value == -1) return GameOptions.getGenericValueText(prefix, Text.translatable("options.fullscreen.current"));
+        VideoMode videoMode = client.getWindow().getMonitor().getVideoMode((int) value);
+        return GameOptions.getGenericValueText(prefix, Text.translatable("options.fullscreen.entry", videoMode.getWidth(), videoMode.getHeight(), videoMode.getRefreshRate(), videoMode.getRedBits() + videoMode.getGreenBits() + videoMode.getBlueBits()));
+    }, new SimpleOption.ValidatingIntSliderCallbacks(-1, client.getWindow().getMonitor() != null ? client.getWindow().getMonitor().getVideoModeCount() - 1 : -1), client.getWindow().getMonitor() == null ? -1 : client.getWindow().getVideoMode().map(client.getWindow().getMonitor()::findClosestVideoModeIndex).orElse(-1), value -> {
+        if (client.getWindow().getMonitor() != null) client.getWindow().setVideoMode(value == -1 ? Optional.empty() : Optional.of(client.getWindow().getMonitor().getVideoMode(value)));
+    }));
+    public final SimpleOption<GraphicsMode> graphicsModeOption = register(graphicOptions, new OptionWrapper<>(gameOptions.getGraphicsMode()).valueTextGetter(graphicsMode -> Text.literal(StringUtils.capitalize(graphicsMode.toString()))).wrap());
+    public final SimpleOption<Integer> renderDistanceOption = register(graphicOptions, gameOptions.getViewDistance());
+    public final SimpleOption<Integer> simulationDistanceOption = register(graphicOptions, gameOptions.getSimulationDistance());
+    public final SimpleOption<Integer> biomeBlendOption = register(graphicOptions, gameOptions.getBiomeBlendRadius());
+    public final SimpleOption<ChunkBuilderMode> chunkBuilderModeOption = register(graphicOptions, new OptionWrapper<>(gameOptions.getChunkBuilderMode()).key("Chunk Builder Mode").wrap());
+    public final SimpleOption<Boolean> smoothLightingOption = register(graphicOptions, new OptionWrapper<>(gameOptions.getAo()).key("Ambient Occlusion").wrap());
+    public final SimpleOption<Integer> colorSchemeOption = register(generalOptions, new SimpleOption<>("Color-Scheme", SimpleOption.emptyTooltip(), (prefix, value) -> {
+        if (value == 0) return Text.literal("Light");
+        if (value == 1) return Text.literal("Dark");
+        return Text.literal("Error...");
+    }, new SimpleOption.PotentialValuesBasedCallbacks<>(List.of(0, 1), null), gameOptions.getMonochromeLogo().getValue() ? 1 : 0, value -> {
+        if (value == 0) gameOptions.getMonochromeLogo().setValue(false);
+        else if (value == 1) gameOptions.getMonochromeLogo().setValue(true);
+        else throw new IllegalArgumentException("Illegal Value for Option 'Color-Scheme'");
+    }));
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Use the {@link #register} methods below to register any custom option to any of the categories above.
+     * If using an index, this will add the option to the given index in the list.
+     * If another mod also adds an option at the same index as yours, the option that was added last will be on top.
+     */
+    public <T> SimpleOption<T> register(List<SimpleOption<?>> list, int index, SimpleOption<T> option) {
+        list.add(index, option);
+        return option;
     }
 
-    private void createOptions() {
-        // General
-        this.generalOptions.add(new IntegerSliderOption(MinecraftClient.getInstance().options.getFov(), "FOV", (optionText, value) -> optionText.copy().append(": " + value), ActionUtil::doNothing));
-
-        // Display
-        Window window = MinecraftClient.getInstance().getWindow();
-        Monitor monitor = window.getMonitor();
-        this.displayOptions.add(new IntegerSliderOption(new SimpleOption<>("options.fullscreen.resolution", SimpleOption.emptyTooltip(), (prefix, value) -> Text.empty(), new SimpleOption.ValidatingIntSliderCallbacks(-1, monitor != null ? monitor.getVideoModeCount() - 1 : -1), monitor == null ? -1 : window.getVideoMode().map(monitor::findClosestVideoModeIndex).orElse(-1), value -> {
-            if (monitor == null) return;
-            window.setVideoMode(value == -1 ? Optional.empty() : Optional.of(monitor.getVideoMode(value)));
-        }), "Resolution", (optionText, value) -> {
-            if (monitor == null) return Text.translatable("options.fullscreen.unavailable");
-            if (value == -1) return GameOptions.getGenericValueText(optionText, Text.translatable("options.fullscreen.current"));
-            VideoMode videoMode = monitor.getVideoMode(value);
-            return GameOptions.getGenericValueText(optionText, Text.translatable("options.fullscreen.entry", videoMode.getWidth(), videoMode.getHeight(), videoMode.getRefreshRate(), videoMode.getRedBits() + videoMode.getGreenBits() + videoMode.getBlueBits()));
-        }, ActionUtil::doNothing));
+    public <T> SimpleOption<T> register(List<SimpleOption<?>> list, SimpleOption<T> option) {
+        list.add(option);
+        return option;
     }
 }
